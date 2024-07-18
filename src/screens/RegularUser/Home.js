@@ -1,4 +1,9 @@
-import { View, Text, TouchableWithoutFeedback, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  TouchableWithoutFeedback,
+  TouchableOpacity,
+} from "react-native";
 import {
   responsiveFontSize,
   responsiveHeight,
@@ -9,8 +14,11 @@ import TopNav from "../GlobalComponents/TopNav";
 import { FlashList } from "@shopify/flash-list";
 import Cards from "../GlobalComponents/Cards";
 import HomeSearch from "../GlobalComponents/HomeSearch";
+import { useNavigation } from "@react-navigation/native";
 
 const Home = () => {
+  const navigation = useNavigation();
+
   const data = [
     {
       id: 1,
@@ -27,6 +35,12 @@ const Home = () => {
     { id: 4, name: "bhandari" },
   ];
 
+  console.log("hello")
+
+  const handleClickPost = (item) => {
+     navigation.navigate("Post")
+  };
+
   return (
     <View
       style={{
@@ -34,7 +48,7 @@ const Home = () => {
         alignItems: "center",
         justifyContent: "center",
         backgroundColor: "#fff",
-        paddingTop: responsiveHeight(16),
+        paddingTop: responsiveHeight(8),
       }}
     >
       <View className="w-[95%]" style={{ padding: responsiveHeight(2) }}>
@@ -70,10 +84,10 @@ const Home = () => {
         </View>
         {/* search  */}
         <TouchableOpacity>
-            <View style={{marginTop: responsiveHeight(3)}}>
-              <HomeSearch text={'Home'} user={"Care Giver"} />
-            </View>
-          </TouchableOpacity>
+          <View style={{ marginTop: responsiveHeight(3) }}>
+            <HomeSearch text={"Home"} user={"Care Giver"} />
+          </View>
+        </TouchableOpacity>
         {/* home other options  */}
         <View
           style={{
@@ -86,11 +100,9 @@ const Home = () => {
             estimatedItemSize={120}
             data={data}
             renderItem={({ item }) => (
-              <TouchableWithoutFeedback
-              // onPress={() => setSelectedItemHandler(item)}
-              >
+              <TouchableOpacity onPress={() => handleClickPost(item)}>
                 <Cards data={item} />
-              </TouchableWithoutFeedback>
+              </TouchableOpacity>
             )}
             contentContainerStyle={{
               paddingBottom: responsiveHeight(50),

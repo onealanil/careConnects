@@ -8,6 +8,7 @@ import Explore from "../screens/RegularUser/Explore";
 import Message from "../screens/RegularUser/Message";
 import Fav from "../screens/RegularUser/Fav";
 import Notification from "../screens/RegularUser/Notification";
+import Post from "../screens/RegularUser/Post";
 
 const Tab = createBottomTabNavigator();
 
@@ -71,6 +72,14 @@ const ButtonNavigatorUser = () => {
           ),
           tabBarBadge: 6,
         }}
+      />
+         <Tab.Screen
+        name="Post"
+        component={Post}
+        options={() => ({
+          tabBarButton: () => null,
+          tabBarVisible: false,
+        })}
       />
     </Tab.Navigator>
   );

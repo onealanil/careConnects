@@ -10,7 +10,7 @@ const HomeSearch = ({ text, user }) => {
         <View style={styles.iconContainer}>
           <IonIcons name="search" color="gray" size={25} />
         </View>
-        {user?.role === "job_seeker" ? (
+        {user?.role === "care_giver" ? (
           <View style={styles.input}>
             <Text
               className="text-gray-500"
@@ -19,7 +19,7 @@ const HomeSearch = ({ text, user }) => {
                 fontSize: responsiveFontSize(2),
               }}
             >
-              Search for job...
+              Search for careGivers...
             </Text>
           </View>
         ) : (
