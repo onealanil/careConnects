@@ -10,6 +10,9 @@ import {
 import { Picker } from "@react-native-picker/picker";
 import { genderList } from "../screens/GlobalComponents/SkillsData";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import ModalBox from "./ModalBox";
+import { ErrorToast } from "./ErrorToast";
+import { LoginSignupStore } from "../screens/loginSignup/helper/LoginSignupStore";
 
 // Define validation schema with Yup
 const validationSchema = Yup.object().shape({
@@ -48,40 +51,36 @@ const SignupForm = ({ role, navigation }) => {
   };
 
   // handle signup
-  //   const handleSignup = async (values) => {
-  //     setIsSubmitting(true);
-  //     try {
-  //       if (role && gender) {
-  //         const userDetails = {
-  //           username: values.username,
-  //           email: values.email,
-  //           password: values.password,
-  //           role: role,
-  //           gender: gender,
-  //           security_answer: values.security_answer,
-  //           fcm_token: await AsyncStorage.getItem('fcm_token'),
-  //         };
+    const handleSignup = async (values) => {
+      setIsSubmitting(true);
+      try {
+        if (role && gender) {
+          const userDetails = {
+            username: values.username,
+            email: values.email,
+            password: values.password,
+            role: role,
+            gender: gender,
+          };
 
-  //         const response = await (
-  //           LoginSignupStore.getState() as LoginSignupStoreState
-  //         ).signupUser(userDetails);
-  //         setOtpDetails({
-  //           userId: response.data.userId,
-  //           email: response.data.email,
-  //           timer: response.data.expiresAt,
-  //         });
-  //         setResponseMessage(response.message);
-  //         setModalVisible(true);
-  //       }
-  //     } catch (error: any) {
-  //       const errorMessage = error
-  //         .toString()
-  //         .replace('[Error: ', '')
-  //         .replace(']', '');
-  //       ErrorToast(errorMessage);
-  //     }
-  //     setIsSubmitting(false);
-  //   };
+          const response = await LoginSignupStore.getState().signupUser(userDetails);
+          setOtpDetails({
+            userId: response.data.userId,
+            email: response.data.email,
+            timer: response.data.expiresAt,
+          });
+          setResponseMessage(response.message);
+          setModalVisible(true);
+        }
+      } catch (error) {
+        const errorMessage = error
+          .toString()
+          .replace('[Error: ', '')
+          .replace(']', '');
+        ErrorToast(errorMessage);
+      }
+      setIsSubmitting(false);
+    };
 
   // handle ok function
   const handleOkFunction = () => {
@@ -303,12 +302,12 @@ const SignupForm = ({ role, navigation }) => {
               </TouchableOpacity>
             </View>
           </View>
-          {/* <ModalBox
+          <ModalBox
             isModalVisible={isModalVisible}
             handleOkFunction={handleOkFunction}
             responseMessage={responseMessage}
             modalMessage="Verify your Account"
-          /> */}
+          />
         </>
       )}
     </Formik>

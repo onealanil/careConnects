@@ -1,8 +1,11 @@
 import * as React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import AppStack from "./src/navigation/AppStack";
+import Toast from "react-native-toast-message";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
+import AppProvider from "./src/contexts/AppProvider";
+import { LogBox } from "react-native";
 
 function App() {
   const [fontsLoaded] = useFonts({
@@ -11,24 +14,30 @@ function App() {
     "Montserrat-SemiBold": require("./assets/fonts/Montserrat-SemiBold.ttf"),
     "Montserrat-Medium": require("./assets/fonts/Montserrat-Medium.ttf"),
   });
+  
 
   React.useEffect(() => {
     async function prepare() {
       await SplashScreen.preventAutoHideAsync();
     }
     prepare();
+    LogBox.ignoreAllLogs();
   }, []);
 
   if (!fontsLoaded) {
     return null;
-  }else{
+  } else {
     SplashScreen.hideAsync();
   }
 
+
   return (
-    <NavigationContainer>
-      <AppStack />
-    </NavigationContainer>
+    <AppProvider>
+      <NavigationContainer>
+        <AppStack />
+      </NavigationContainer>
+      <Toast />
+    </AppProvider>
   );
 }
 

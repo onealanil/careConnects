@@ -15,9 +15,12 @@ import { FlashList } from "@shopify/flash-list";
 import Cards from "../GlobalComponents/Cards";
 import HomeSearch from "../GlobalComponents/HomeSearch";
 import { useNavigation } from "@react-navigation/native";
+import { useGlobalStore } from "../../global/store";
 
 const Home = () => {
   const navigation = useNavigation();
+  const user = useGlobalStore((state) => state.user);
+
 
   const data = [
     {
@@ -53,7 +56,7 @@ const Home = () => {
     >
       <View className="w-[95%]" style={{ padding: responsiveHeight(2) }}>
         {/* top nav  */}
-        <TopNav user={"anil"} />
+        <TopNav props={navigation} user={user}/>
         {/* description start */}
         <View
           className="flex flex-col gap-y-1"
@@ -117,7 +120,7 @@ const Home = () => {
                     fontSize: responsiveFontSize(1.75),
                   }}
                 >
-                  No near by jobs available
+                  No Care Givers Found
                 </Text>
               </View>
             )}

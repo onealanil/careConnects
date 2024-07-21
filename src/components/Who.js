@@ -32,7 +32,7 @@ const Who = ({setWho}) => {
             <View className="w-[50%] flex items-center justify-center p-5 gap-y-2">
               <TouchableOpacity
                 onPress={() => {
-                  setWho('job_seeker');
+                  setWho('user');
                 }}>
                 <JobSeeker />
                 <Text
@@ -49,7 +49,7 @@ const Who = ({setWho}) => {
             <View className="w-[50%] flex items-center justify-center p-5 gap-y-2">
               <TouchableOpacity
                 onPress={() => {
-                  setWho('job_provider');
+                  setWho('care_giver');
                 }}>
                 <JobProvider />
                 <Text

@@ -9,6 +9,13 @@ import Message from "../screens/RegularUser/Message";
 import Fav from "../screens/RegularUser/Fav";
 import Notification from "../screens/RegularUser/Notification";
 import Post from "../screens/RegularUser/Post";
+import ActualMessage from "../screens/GlobalComponents/ActualMessage";
+import MyProfile from "../screens/CareGiver/MyProfile";
+import EditProfile from "../screens/CareGiver/EditProfile";
+import DocumentVerify from "../screens/GlobalComponents/DocumentVerify";
+import PhoneVerification from "../screens/CareGiver/phoneVerify/PhoneVerification";
+import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
+import Payment from "../screens/RegularUser/Payment";
 
 const Tab = createBottomTabNavigator();
 
@@ -73,13 +80,62 @@ const ButtonNavigatorUser = () => {
           tabBarBadge: 6,
         }}
       />
-         <Tab.Screen
+      <Tab.Screen
         name="Post"
         component={Post}
         options={() => ({
           tabBarButton: () => null,
           tabBarVisible: false,
         })}
+      />
+      <Tab.Screen
+        name="Actual_Message"
+        component={ActualMessage}
+        options={() => ({
+          tabBarButton: () => null,
+          tabBarVisible: false,
+        })}
+      />
+      <Tab.Screen
+        name="myProfile"
+        component={MyProfile}
+        options={() => ({
+          tabBarButton: () => null,
+          tabBarVisible: false,
+        })}
+      />
+      <Tab.Screen
+        name="EditProfile"
+        component={EditProfile}
+        options={() => ({
+          tabBarButton: () => null,
+          tabBarVisible: false,
+        })}
+      />
+      <Tab.Screen
+        name="settings"
+        component={DocumentVerify}
+        options={() => ({
+          tabBarButton: () => null,
+          tabBarVisible: false,
+        })}
+      />
+      <Tab.Screen
+        name="phoneVerify"
+        component={PhoneVerification}
+        options={() => ({
+          tabBarButton: () => null,
+          tabBarVisible: false,
+        })}
+      />
+      <Tab.Screen
+        name="Payment"
+        component={Payment}
+        options={{
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="payment" size={25} color={color} />
+          ),
+        }}
       />
     </Tab.Navigator>
   );

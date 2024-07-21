@@ -43,15 +43,15 @@ const TopNav = ({props, user}) => {
               fontSize: responsiveFontSize(1.5),
               marginLeft: responsiveWidth(12),
             }}>
-            Regular User
+            {user?.role === "care_giver"? "Care Giver" : "Regular User"}
           </Text>
         </View>
       </View>
       {/* image  */}
-      <TouchableOpacity onPress={() => props.navigate('My_Profile')}>
+      <TouchableOpacity onPress={() => props.navigate('myProfile')}>
         <View>
-          {/* {user?.profilePic.url && (
-            <FastImage
+          {user?.profilePic.url && (
+            <Image
               source={{uri: user?.profilePic.url}}
               style={{
                 height: 40,
@@ -61,17 +61,7 @@ const TopNav = ({props, user}) => {
                 borderColor: '#79AC78', 
               }}
             />
-          )} */}
-          <Image
-            source={require('../../../assets/user-profile.jpg')}
-            style={{
-              height: 40,
-              width: 40,
-              borderRadius: 20,
-              borderWidth: 2,
-              borderColor: '#79AC78',
-            }}
-            />
+          )}
         </View>
       </TouchableOpacity>
     </View>

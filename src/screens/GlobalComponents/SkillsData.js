@@ -48,6 +48,29 @@ export const Skills_data = [
       gender: 'female',
     },
   ];
+
+  export const educationList = [
+    {
+      id: 1,
+      education : 'School',
+    },
+    {
+      id: 2,
+      education: 'High School',
+    },
+    {
+      id: 3,
+      education: 'Bachelor',
+    },
+    {
+      id: 4,
+      education: 'Master',
+    },
+    {
+      id: 5,
+      education: 'Phd',
+    },
+  ];
   
   export const category = [
     {id: 1, name: 'home_services'},
@@ -81,15 +104,4 @@ export const Skills_data = [
     {id: 10, name: 'labor'},
     {id: 11, name: 'gardening_farming'},
   ];
-  
-  // home_services: cleaning, cooking, etc
-  // repairs: appliances, electrical, etc
-  // automotive
-  // business: delivery, services
-  // childcare
-  // construction
-  // computer_it
-  // education_training: tutoring, teaching
-  // labor: general tasks & errands
-  // gardening_farming
   

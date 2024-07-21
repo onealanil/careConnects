@@ -6,12 +6,14 @@ import {
   responsiveWidth,
 } from "react-native-responsive-dimensions";
 import { useNavigation } from "@react-navigation/native";
+import axios from "axios";
 
 const OnBoarding = () => {
   const navigation = useNavigation();
   const handleBoarding = () => {
-    navigation.navigate('regular_user');
+    navigation.navigate('Login');
   };
+
 
   return (
     <View style={styles.container}>

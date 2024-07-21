@@ -14,17 +14,24 @@ import IconIcons from "react-native-vector-icons/Ionicons";
 import Feather from "react-native-vector-icons/Feather";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
 import { useNavigation } from "@react-navigation/native";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useGlobalStore } from "../../global/store";
 
 const Post = () => {
-    const navigation = useNavigation();
+  const navigation = useNavigation();
   const backPressHandler = () => {
     // go back
-    navigation.navigate("Home_bottom")
+    navigation.navigate("Home_bottom");
+  };
+
+  const handleLogoutFunction = async () => {
+    await AsyncStorage.removeItem("currentUser");
+    useGlobalStore.setState({ user: null });
+    navigation.navigate('Login');
   };
 
   return (
-    <SafeAreaView style={{marginTop: responsiveHeight(5)}}>
+    <SafeAreaView style={{ marginTop: responsiveHeight(5) }}>
       <View
         className="w-[100%] flex flex-col"
         style={{ padding: responsiveHeight(2) }}
@@ -68,18 +75,17 @@ const Post = () => {
             style={{ width: responsiveWidth(60) }}
           >
             <View className="flex flex-row items-center gap-x-2">
-
-            <Text
-              className="text-black"
-              style={{
+              <Text
+                className="text-black"
+                style={{
                   fontFamily: "Montserrat-Bold",
                   fontSize: responsiveHeight(3),
-                  }}
-                  >
-              Anil bhandari
-            </Text>
-            <MaterialIcon name="verified" size={20} color={"green"} />
-                </View>
+                }}
+              >
+                Anil bhandari
+              </Text>
+              <MaterialIcon name="verified" size={20} color={"green"} />
+            </View>
 
             <View className="flex flex-row gap-x-1">
               {/* star  */}
@@ -186,7 +192,7 @@ const Post = () => {
               </Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={handleLogoutFunction}>
             <View className="py-2 px-5 bg-black rounded-md flex flex-row items-center gap-x-1">
               <MaterialIcon name="unfold-more" size={17} color="white" />
               <Text
