@@ -18,17 +18,17 @@ import { Formik } from "formik";
 import { Skills_data, educationList } from "../GlobalComponents/SkillsData";
 import { SuccessToast } from "../../components/SuccessToast";
 import { ErrorToast } from "../../components/ErrorToast";
-// import {UserStore} from './helper/UserStore';
 import { useGlobalStore } from "../../global/store";
 import GeoLocation from "../GlobalComponents/GeoLocation";
 import { useNavigation } from "@react-navigation/native";
+import { UserStore } from "./helper/UserStore";
 
 const RenderItem = () => {
   const { user, checkAuth } = useGlobalStore();
   const [selectedItem, setSelectedItem] = React.useState([]);
   //location name
   const [locationName, setLocationName] = React.useState("");
-  const [educaion, setEducation] = React.useState("");
+  const [education, setEducation] = React.useState("");
 
   //geometry
   const [geometry, setGeometry] = React.useState({});
@@ -43,39 +43,33 @@ const RenderItem = () => {
     [user]
   );
 
-  //   const handleEditProfile = useCallback(
-  //     async (values: editProfileProps) => {
-  //       try {
-  //         const skillsRequired = selectedItem.map(
-  //           (index: any) => Skills_data[index - 1],
-  //         );
+  const handleEditProfile = useCallback(
+    async (values) => {
+      try {
+        const newValues = {
+          ...values,
+          education,
+          location: locationName,
+          latitude: geometry.coordinates[1],
+          longitude: geometry.coordinates[0],
+        };
 
-  //         const newValues = {
-  //           ...values,
-  //           skills: skillsRequired?.map((skill: any) => skill.name),
-  //           location: locationName,
-  //           latitude: geometry.coordinates[1],
-  //           longitude: geometry.coordinates[0],
-  //         };
+        const response = await UserStore.getState().editProfile(user._id, newValues);
 
-  //         const response = await (
-  //           UserStore.getState() as editProfileApiProps
-  //         ).editProfile(user._id, newValues);
-
-  //         if (response) {
-  //           checkAuth();
-  //           SuccessToast('Profile Updated Successfully');
-  //         }
-  //       } catch (error: any) {
-  //         const errorMessage = error
-  //           .toString()
-  //           .replace('[Error: ', '')
-  //           .replace(']', '');
-  //         ErrorToast(errorMessage);
-  //       }
-  //     },
-  //     [checkAuth, geometry.coordinates, locationName, selectedItem, user._id],
-  //   );
+        if (response) {
+          checkAuth();
+          SuccessToast('Profile Updated Successfully');
+        }
+      } catch (error) {
+        const errorMessage = error
+          .toString()
+          .replace("[Error: ", "")
+          .replace("]", "");
+        ErrorToast(errorMessage);
+      }
+    },
+    [checkAuth, geometry.coordinates, locationName, selectedItem, user._id, education]
+  );
 
   return (
     <View className="flex flex-col items-center ">
@@ -219,7 +213,7 @@ const RenderItem = () => {
                       Education
                     </Text>
                     <Picker
-                      selectedValue={educaion}
+                      selectedValue={education}
                       onValueChange={(itemValue) => setEducation(itemValue)}
                       style={{
                         height: 40,
@@ -257,7 +251,6 @@ const RenderItem = () => {
                           }}
                         >
                           Done
-                          {/* {isSubmitting ? 'Creating ...' : 'Create Gig'} */}
                         </Text>
                       </View>
                     </TouchableOpacity>

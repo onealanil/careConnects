@@ -1,6 +1,5 @@
 import {View, Text, ScrollView, TouchableOpacity, Image} from 'react-native';
 import React, {useState, useRef} from 'react';
-import {RouteProp} from '@react-navigation/native';
 import {
   responsiveFontSize,
   responsiveHeight,
@@ -8,11 +7,11 @@ import {
 } from 'react-native-responsive-dimensions';
 import IconIcons from 'react-native-vector-icons/Ionicons';
 import PhoneInput from 'react-native-phone-number-input';
-import {ErrorToast} from '../../../components/ErrorToast';
 import axios from 'axios';
-// import {UserStore} from '../helper/UserStore';
 import {SuccessToast} from '../../../components/SuccessToast';
 import {useGlobalStore} from '../../../global/store';
+import { UserStore } from '../helper/UserStore';
+import { ErrorToast } from '../../../components/ErrorToast';
 
 
 const PhoneVerification = ({navigation, route}) => {
@@ -22,24 +21,21 @@ const PhoneVerification = ({navigation, route}) => {
   const [isVerifyLoading, setIsVerifyLoading] = useState(false);
   const phoneInput = useRef(null);
 
-  const updatePhoneDatabase = async () => {};
 
-  // const updatePhoneDatabase = async () => {
-  //   setIsVerifyLoading(true);
-  //   try {
-  //     const responsePhone = await (
-  //       UserStore.getState() as any
-  //     ).updatePhoneNumber(value);
-  //     if (responsePhone) {
-  //       checkAuth();
-  //       SuccessToast('Phone number added successfully');
-  //       navigation.navigate('My_Profile');
-  //     }
-  //   } catch (error: any) {
-  //     ErrorToast(error.message);
-  //   }
-  //   setIsVerifyLoading(false);
-  // };
+  const updatePhoneDatabase = async () => {
+    setIsVerifyLoading(true);
+    try {
+      const responsePhone = await UserStore.getState().updatePhoneNumber(value);
+      if (responsePhone) {
+        checkAuth();
+        SuccessToast('Phone number added successfully');
+        navigation.navigate('myProfile');
+      }
+    } catch (error) {
+      ErrorToast(error.message);
+    }
+    setIsVerifyLoading(false);
+  };
 
   const checkForValidation = async (countrycode) => {
     if (value === '') {
