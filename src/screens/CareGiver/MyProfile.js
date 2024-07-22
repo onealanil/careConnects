@@ -138,7 +138,7 @@ const MyProfile = () => {
   };
 
   React.useEffect(() => {
-    if (focused) {
+    if (focused && user?.role === "care_giver") {
       fetchWorkingInfo();
     }
   }, []);
@@ -158,7 +158,7 @@ const MyProfile = () => {
             ) : (
               <View className="relative">
                 <Image
-                  source={{ uri: user?.profilePic.url }}
+                  source={{ uri: user?.profilePic?.url }}
                   style={{
                     width: 100,
                     height: 100,

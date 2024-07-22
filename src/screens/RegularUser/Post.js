@@ -16,9 +16,17 @@ import MaterialIcon from "react-native-vector-icons/MaterialIcons";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useGlobalStore } from "../../global/store";
+import { useRoute } from "@react-navigation/native";
+import { MessageStore } from "./helper/MessageStore";
 
 const Post = () => {
   const navigation = useNavigation();
+  const user = useGlobalStore((state) => state.user);
+  const route = useRoute();
+  const singleUserData = route?.params?.item;
+
+  const [isRequesting, setIsRequesting] = React.useState(false);
+
   const backPressHandler = () => {
     // go back
     navigation.navigate("Home_bottom");
@@ -27,7 +35,41 @@ const Post = () => {
   const handleLogoutFunction = async () => {
     await AsyncStorage.removeItem("currentUser");
     useGlobalStore.setState({ user: null });
-    navigation.navigate('Login');
+    navigation.navigate("Login");
+  };
+
+  //send message handler
+  const sendMessageHandler = 
+    async (conversationId) => {
+      const newValues = {
+        conversationId: conversationId,
+        msg: `I want to ask something about your service, Will you please reply!.`,
+        recipientId: singleUserData?._id,
+      };
+      const response = await MessageStore.getState().createMessage(
+        newValues,
+      );
+      if (response) {
+        navigation.navigate('Actual_Message', {
+          conversation_id: conversationId,
+        });
+      }
+    };
+
+  //send request handler
+  const sendRequestHandler = async () => {
+    setIsRequesting(true)
+    const newValues = {
+      senderId: user?._id,
+      receiverId: singleUserData?._id,
+    };
+    const response = await MessageStore.getState().createConversation(
+      newValues
+    );
+    if (response) {
+      sendMessageHandler(response?.conversation._id.toString());
+    }
+    setIsRequesting(false)
   };
 
   return (
@@ -47,7 +89,7 @@ const Post = () => {
                 fontSize: responsiveHeight(2),
               }}
             >
-              Backs
+              Back
             </Text>
           </View>
         </TouchableOpacity>
@@ -55,19 +97,19 @@ const Post = () => {
         <View className="flex flex-row gap-x-5 items-center">
           {/* profile pic  */}
           <View>
-            {/* {user && user?.profilePic && ( */}
-            <Image
-              source={require("../../../assets/user-profile.jpg")}
-              style={{
-                width: 100,
-                height: 100,
-                borderRadius: 100 / 2,
-                overflow: "hidden",
-                borderWidth: 2,
-                borderColor: "#79AC78",
-              }}
-            />
-            {/* )} */}
+            {singleUserData && singleUserData?.profilePic && (
+              <Image
+                source={{ uri: singleUserData?.profilePic?.url }}
+                style={{
+                  width: 100,
+                  height: 100,
+                  borderRadius: 100 / 2,
+                  overflow: "hidden",
+                  borderWidth: 2,
+                  borderColor: "#79AC78",
+                }}
+              />
+            )}
           </View>
           {/* simple details start */}
           <View
@@ -82,7 +124,7 @@ const Post = () => {
                   fontSize: responsiveHeight(3),
                 }}
               >
-                Anil bhandari
+                {singleUserData?.username}
               </Text>
               <MaterialIcon name="verified" size={20} color={"green"} />
             </View>
@@ -118,7 +160,7 @@ const Post = () => {
                 fontSize: responsiveHeight(1.75),
               }}
             >
-              {/* {user?.bio || (
+              {singleUserData?.bio || (
                 <Text
                   className="text-red-500"
                   style={{
@@ -128,8 +170,7 @@ const Post = () => {
                 >
                   No bio
                 </Text>
-              )} */}
-              I am a very good man
+              )}
             </Text>
             <View className="flex flex-row gap-x-1">
               <IconIcons name="location-outline" size={17} color="#79AC78" />
@@ -140,7 +181,7 @@ const Post = () => {
                   fontSize: responsiveHeight(1.75),
                 }}
               >
-                {/* {user?.location || (
+                {singleUserData?.location || (
                   <Text
                     className="text-red-500"
                     style={{
@@ -150,8 +191,7 @@ const Post = () => {
                   >
                     No location
                   </Text>
-                )} */}
-                Dharan
+                )}
               </Text>
             </View>
           </View>
@@ -162,7 +202,7 @@ const Post = () => {
           className="flex flex-row items-center justify-between gap-x-2"
           style={{ marginTop: responsiveHeight(4) }}
         >
-          <TouchableOpacity>
+          <TouchableOpacity onPress={sendRequestHandler}>
             <View className="py-2 px-5 bg-black rounded-md flex flex-row items-center gap-x-1">
               <Feather name="message-circle" size={17} color="white" />
               <Text
@@ -173,7 +213,7 @@ const Post = () => {
                   color: "white",
                 }}
               >
-                Request
+                {isRequesting ? "Requesting..." : "Request"}
               </Text>
             </View>
           </TouchableOpacity>
@@ -228,7 +268,7 @@ const Post = () => {
                 fontSize: responsiveHeight(1.75),
               }}
             >
-              {/* {user?.about_me || (
+              {singleUserData?.about_me || (
                 <Text
                   className="text-red-500"
                   style={{
@@ -238,8 +278,7 @@ const Post = () => {
                 >
                   No about me
                 </Text>
-              )} */}
-              I am a godd boy
+              )}
             </Text>
           </View>
           {/* Education  */}
@@ -260,7 +299,8 @@ const Post = () => {
                 fontSize: responsiveHeight(1.75),
               }}
             >
-              {/* {user?.about_me || (
+              {(singleUserData?.education &&
+                `I have completed my ${singleUserData?.education}`) || (
                 <Text
                   className="text-red-500"
                   style={{
@@ -268,10 +308,9 @@ const Post = () => {
                     fontSize: responsiveHeight(1.75),
                   }}
                 >
-                  No about me
+                  No education added
                 </Text>
-              )} */}
-              I have completed my master
+              )}
             </Text>
           </View>
         </View>

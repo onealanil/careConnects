@@ -3,6 +3,7 @@ import { useGlobalStore } from "../global/store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { Text, View } from "react-native";
+import Loading from "./GlobalComponents/Loading";
 
 const MainHome = React.memo(() => {
     const navigation = useNavigation();
@@ -39,7 +40,7 @@ const MainHome = React.memo(() => {
     if (isLoading) {
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <Text>Loading...</Text>
+                <Loading/>
             </View>
         );
     }

@@ -10,6 +10,7 @@ import MainHome from "../screens/MainHome";
 import { useGlobalStore } from "../global/store"; // Make sure this path is correct
 import OtpScreen from "../screens/loginSignup/Otpscreen";
 import ButtonNavigatorCare from "./ButtonNavigatorCare";
+import Loading from "../screens/GlobalComponents/Loading";
 
 const Stack = createNativeStackNavigator();
 
@@ -84,7 +85,9 @@ const AppStack = () => {
   }, [setUser]);
 
   if (loading) {
-    return <Text>Loading.........</Text>;
+    return (
+      <Loading/>
+    )
   }
 
   return (

@@ -16,10 +16,13 @@ import DocumentVerify from "../screens/GlobalComponents/DocumentVerify";
 import PhoneVerification from "../screens/CareGiver/phoneVerify/PhoneVerification";
 import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
 import Payment from "../screens/RegularUser/Payment";
+import { useMessageStore } from "../global/MessageCount";
 
 const Tab = createBottomTabNavigator();
 
 const ButtonNavigatorUser = () => {
+  const messageCount = useMessageStore((state) => state.messageCount);
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -57,7 +60,7 @@ const ButtonNavigatorUser = () => {
           tabBarIcon: ({ color }) => (
             <Feather name="message-circle" size={25} color={color} />
           ),
-          tabBarBadge: 2,
+          tabBarBadge: messageCount > 0 ? messageCount : undefined,
         }}
       />
       <Tab.Screen

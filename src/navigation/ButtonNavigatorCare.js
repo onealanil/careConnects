@@ -4,18 +4,25 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
 import Feather from "react-native-vector-icons/Feather";
 import Home from "../screens/CareGiver/Home";
-import Message from "../screens/CareGiver/Message";
-import Notification from "../screens/CareGiver/Notification";
 import MyProfile from "../screens/CareGiver/MyProfile";
 import EditProfile from "../screens/CareGiver/EditProfile";
 import DocumentVerify from "../screens/GlobalComponents/DocumentVerify";
 import PhoneVerification from "../screens/CareGiver/phoneVerify/PhoneVerification";
 import Review from "../screens/CareGiver/Review";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import ActualMessage from "../screens/GlobalComponents/ActualMessage";
+import Message from "../screens/RegularUser/Message";
+import Notification from "../screens/RegularUser/Notification";
+import { useMessageStore } from "../global/MessageCount";
 
 const Tab = createBottomTabNavigator();
 
 const ButtonNavigatorCare = () => {
+  const messageCount = useMessageStore(state => state.messageCount);
+  // const notificationCount = useNotificationCount(
+  //   state => state.notificationCount,
+  // );
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -44,7 +51,7 @@ const ButtonNavigatorCare = () => {
           tabBarIcon: ({ color }) => (
             <Feather name="message-circle" size={25} color={color} />
           ),
-          tabBarBadge: 2,
+          tabBarBadge: messageCount > 0 ? messageCount : undefined,
         }}
       />
       <Tab.Screen
@@ -74,6 +81,14 @@ const ButtonNavigatorCare = () => {
             <FontAwesome6 name="circle-user" size={25} color={color} />
           ),
         }}
+      />
+       <Tab.Screen
+        name="Actual_Message"
+        component={ActualMessage}
+        options={() => ({
+          tabBarButton: () => null,
+          tabBarVisible: false,
+        })}
       />
       <Tab.Screen
         name="EditProfile"

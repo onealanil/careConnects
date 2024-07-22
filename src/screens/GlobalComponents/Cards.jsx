@@ -8,14 +8,14 @@ import {
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 
-const Cards = () => {
+const Cards = ({ data }) => {
   return (
     <View className="flex flex-col items-center bg-gray-100 p-4 my-2 rounded-md">
       {/* upside  */}
       <View className="flex flex-row gap-x-3">
         <View>
           <Image
-            source={require("../../../assets/user-profile.jpg")}
+            source={{ uri: data?.profilePic?.url }}
             style={{ height: 40, width: 40, borderRadius: 40 }}
           />
         </View>
@@ -29,7 +29,7 @@ const Cards = () => {
                 fontSize: responsiveFontSize(1.5),
               }}
             >
-              Anil Bhandari
+              {data?.username}
             </Text>
             <MaterialIcons name="verified" size={20} color={"green"} />
           </View>
@@ -52,7 +52,17 @@ const Cards = () => {
                 color: "black",
               }}
             >
-              Belbaari
+              {data?.location || (
+                <Text
+                  className="text-red-500"
+                  style={{
+                    fontFamily: "Montserrat-Regular",
+                    fontSize: responsiveHeight(1.5),
+                  }}
+                >
+                  Location not added
+                </Text>
+              )}
             </Text>
           </View>
         </View>
@@ -63,11 +73,11 @@ const Cards = () => {
       {/* downside */}
       <View style={{ marginTop: responsiveHeight(2) }}>
         <Text
-         style={{
+          style={{
             fontFamily: "Montserrat-Regular",
             fontSize: responsiveFontSize(1.5),
             color: "black",
-         }}
+          }}
         >
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Earum
           praesentium nulla commodi magni, eligendi ducimus sequi minima atque

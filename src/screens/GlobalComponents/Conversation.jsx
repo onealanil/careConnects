@@ -1,83 +1,48 @@
-import {View, Text, Image, StyleSheet} from 'react-native';
-import React, {useCallback, useEffect} from 'react';
+import { View, Text, Image, StyleSheet, ActivityIndicator } from "react-native";
+import React, { useCallback, useEffect } from "react";
 import {
   responsiveFontSize,
   responsiveHeight,
-} from 'react-native-responsive-dimensions';
-// import {formatDistanceToNow} from 'date-fns';
-import {useIsFocused} from '@react-navigation/native';
-import {useGlobalStore} from '../../global/store';
-import {ErrorToast} from '../../components/ErrorToast';
-// import {createShimmerPlaceholder} from 'react-native-shimmer-placeholder';
+} from "react-native-responsive-dimensions";
+import {formatDistanceToNow} from 'date-fns';
+import { useIsFocused } from "@react-navigation/native";
+import { useGlobalStore } from "../../global/store";
+import { ErrorToast } from "../../components/ErrorToast";
+import { MessageStore } from "../RegularUser/helper/MessageStore";
 
-
-// const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient);
-
-const Conversation = ({data}) => {
+const Conversation = ({ data }) => {
   const isFocused = useIsFocused();
   const user = useGlobalStore((state) => state.user);
   const [lastMessage, setLastMessage] = React.useState({});
   const [isLoading, setIsLoading] = React.useState(true);
 
-//   const getLastMesssage = useCallback(async () => {
-//     setIsLoading(true);
-//     try {
-//       const response = await (MessageStore.getState() as any).getLastMessage(
-//         data?._id,
-//       );
-//       setLastMessage(response.result);
-//     } catch (error: any) {
-//       const errorMessage = error
-//         .toString()
-//         .replace('[Error: ', '')
-//         .replace(']', '');
-//       ErrorToast(errorMessage);
-//     }
-//     setIsLoading(false);
-//   }, [data?._id]);
+  const getLastMesssage = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const response = await MessageStore.getState().getLastMessage(data?._id);
+      setLastMessage(response.result);
+    } catch (error) {
+      const errorMessage = error
+        .toString()
+        .replace("[Error: ", "")
+        .replace("]", "");
+      ErrorToast(errorMessage);
+    }
+    setIsLoading(false);
+  }, [data?._id]);
 
-//   useEffect(() => {
-//     if (isFocused) {
-//       getLastMesssage();
-//     }
-//   }, [isFocused, getLastMesssage]);
-
-//   const messageListener = useCallback(
-//     ({sender, message, conversationId}: any) => {
-//       if (conversationId === data?._id) {
-//         // Append the received message to the messages state
-//         setLastMessage((prevMessages: any) => {
-//           const newMessage = {
-//             __v: 0,
-//             _id: Math.random().toString(),
-//             conversationId: data?._id,
-//             createdAt: new Date().toISOString(),
-//             msg: message,
-//             senderId: sender,
-//             updatedAt: new Date().toISOString(),
-//           };
-//           return [newMessage];
-//         });
-//       }
-//     },
-//     [data?._id],
-//   );
-
-//   useEffect(() => {
-//     socket?.on('textMessageFromBack', messageListener);
-
-//     return () => {
-//       socket?.off('textMessageFromBack', messageListener);
-//     };
-//   }, [data?._id, socket, messageListener]);
+  useEffect(() => {
+    if (isFocused) {
+      getLastMesssage();
+    }
+  }, [isFocused, getLastMesssage]);
 
   return (
     <View className="flex pl-5 flex-row gap-x-5 py-2 rounded-md border-b-[1.5px] border-[#e5e8e9]">
       {/* image  */}
       <View>
         <Image
-        //   source={{uri: data?.conversation[0]?.profilePic.url}}
-        source={{uri: data?.profilePic}}
+          source={{ uri: data?.conversation[0]?.profilePic.url }}
           style={{
             width: responsiveHeight(8),
             height: responsiveHeight(8),
@@ -92,44 +57,46 @@ const Conversation = ({data}) => {
           <Text
             className="text-black"
             style={{
-              fontFamily: 'Montserrat-SemiBold',
+              fontFamily: "Montserrat-SemiBold",
               fontSize: responsiveFontSize(2),
-            }}>
-            {/* {data?.conversation[0]?.username} */}Oneal
+            }}
+          >
+            {data?.conversation[0]?.username}
           </Text>
           <Text
             className="text-color2"
             style={{
-              fontFamily: 'Montserrat-SemiBold',
+              fontFamily: "Montserrat-SemiBold",
               fontSize: responsiveFontSize(1.5),
-            }}>
-            {/* {lastMessage &&
+            }}
+          >
+            {lastMessage &&
               lastMessage[0]?.createdAt &&
-              formatDistanceToNow(new Date(lastMessage[0]?.createdAt))} */}
-            5 mins
+              formatDistanceToNow(new Date(lastMessage[0]?.createdAt))}
           </Text>
         </View>
         {/* message  */}
-        {/* <View>
+        <View>
           {isLoading ? (
-            <ShimmerPlaceholder style={styles.messagePlaceholder} />
+            <ActivityIndicator color={"black"} />
           ) : (
             <Text
               numberOfLines={1}
               style={{
-                fontFamily: 'Montserrat-Bold',
+                fontFamily: "Montserrat-Bold",
                 fontSize: responsiveFontSize(1.5),
                 color:
                   lastMessage[0]?.senderId !== user?._id
                     ? lastMessage[0]?.isRead
-                      ? '#888'
-                      : 'red'
-                    : 'gray',
-              }}>
+                      ? "#888"
+                      : "red"
+                    : "gray",
+              }}
+            >
               {lastMessage[0]?.msg}
             </Text>
           )}
-        </View> */}
+        </View>
       </View>
     </View>
   );

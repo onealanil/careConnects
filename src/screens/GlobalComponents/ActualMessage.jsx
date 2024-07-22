@@ -7,6 +7,7 @@ import {
   TextInput,
   StyleSheet,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import React, { memo, useCallback, useEffect, useRef } from "react";
 import {
@@ -20,16 +21,17 @@ import { useGlobalStore } from "../../global/store";
 import { ErrorToast } from "../../components/ErrorToast";
 import { useIsFocused } from "@react-navigation/native";
 import { Linking, Platform } from "react-native";
-//   import {formatDistanceToNow} from 'date-fns';
+import { formatDistanceToNow } from "date-fns";
 import { FlashList } from "@shopify/flash-list";
+import { MessageStore } from "../RegularUser/helper/MessageStore";
+import { useMessageStore } from "../../global/MessageCount";
 
 const ActualMessage = ({ navigation, route }) => {
   const isFocused = useIsFocused();
   const user = useGlobalStore((state) => state.user);
-  // const [messages, setMessages] = React.useState([]);
+  const [messages, setMessages] = React.useState([]);
   const [otherUser, setOtherUser] = React.useState({});
   const [message, setMessage] = React.useState("");
-  const [arrivalMessage, setArrivalMessage] = React.useState(null);
   const [isLoading, setIsLoading] = React.useState(true);
 
   const flatListRef = useRef(null);
@@ -37,7 +39,7 @@ const ActualMessage = ({ navigation, route }) => {
   // Function to scroll to the bottom of the message list
   const scrollToBottom = useCallback(() => {
     setTimeout(() => {
-      flatListRef.current?.scrollToEnd({animated: true});
+      flatListRef.current?.scrollToEnd({ animated: true });
     }, 500);
   }, []);
 
@@ -45,180 +47,91 @@ const ActualMessage = ({ navigation, route }) => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
-  console.log(route.params.conversation_id);
+  // fetch messages
+  const fetchMessages = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const response = await MessageStore.getState().getAllMessages(
+        route.params.conversation_id
+      );
+      setMessages(response.result);
+      setOtherUser(response.otheruser);
+    } catch (error) {
+      const errorMessage = error
+        .toString()
+        .replace("[Error: ", "")
+        .replace("]", "");
+      ErrorToast(errorMessage);
+    }
+    setIsLoading(false);
+  }, [route.params.conversation_id]);
 
-  //fetch messages
-  // const fetchMessages = useCallback(async () => {
-  //   setIsLoading(true);
-  //   try {
-  //     const response = await (MessageStore.getState() as any).getAllMessages(
-  //       route.params.conversation_id,
-  //     );
-  //     setMessages(response.result);
-  //     setOtherUser(response.otheruser);
-  //   } catch (error: any) {
-  //     const errorMessage = error
-  //       .toString()
-  //       .replace('[Error: ', '')
-  //       .replace(']', '');
-  //     ErrorToast(errorMessage);
-  //   }
-  //   setIsLoading(false);
-  // }, [route.params.conversation_id]);
+  // read all messages
+  const readAllMessages = useCallback(async () => {
+    try {
+      await MessageStore.getState().readAllMessage(
+        route.params.conversation_id
+      );
+      useMessageStore.setState(state => ({
+        messageCount: 0,
+      }));
+    } catch (error) {
+      const errorMessage = error
+        .toString()
+        .replace("[Error: ", "")
+        .replace("]", "");
+      ErrorToast(errorMessage);
+    }
+  }, [route.params.conversation_id]);
 
-  //read all messages
-  // const readAllMessages = useCallback(async () => {
-  //   try {
-  //     await (MessageStore.getState() as any).readAllMessage(
-  //       route.params.conversation_id,
-  //     );
-  //     useMessageStore.setState(state => ({
-  //       messageCount: 0,
-  //     }));
-  //   } catch (error: any) {
-  //     const errorMessage = error
-  //       .toString()
-  //       .replace('[Error: ', '')
-  //       .replace(']', '');
-  //     ErrorToast(errorMessage);
-  //   }
-  // }, [route.params.conversation_id]);
+  //fetch unread message count
+  const featchUnreadMessageCount = useCallback(async () => {
+    await useMessageStore.getState().unreadMessageCount();
+  }, []);
 
-  // //fetch unread message count
-  // const featchUnreadMessageCount = useCallback(async () => {
-  //   await (useMessageStore.getState() as any).unreadMessageCount();
-  // }, []);
+  useEffect(() => {
+    if (isFocused && route.params?.conversation_id) {
+      featchUnreadMessageCount();
+      readAllMessages();
+      fetchMessages();
+    }
+  }, [
+    isFocused,
+    route.params?.conversation_id,
+    readAllMessages,
+    featchUnreadMessageCount,
+    fetchMessages,
+  ]);
 
-  // useEffect(() => {
-  //   if (isFocused && route.params?.conversation_id) {
-  //     featchUnreadMessageCount();
-  //     readAllMessages();
-  //     fetchMessages();
-  //   }
-  // }, [
-  //   isFocused,
-  //   route.params?.conversation_id,
-  //   featchUnreadMessageCount,
-  //   readAllMessages,
-  //   fetchMessages,
-  // ]);
+  const sendMessageHandler = useCallback(
+    async (e) => {
+      setMessage("");
+      try {
+        if (!message || message === "") return;
+        e.preventDefault();
+        const data = {
+          conversationId: route.params?.conversation_id,
+          msg: message,
+          recipientId: otherUser?._id,
+        };
 
-  // const sendMessageHandler = useCallback(
-  //   async (e: any) => {
-  //     setMessage('');
-  //     try {
-  //       if (!message || message === '') return;
-  //       e.preventDefault();
-  //       const data = {
-  //         conversationId: route.params?.conversation_id,
-  //         msg: message,
-  //         recipientId: otherUser?._id,
-  //       };
-
-  //       const response = await (MessageStore.getState() as any).createMessage(
-  //         data,
-  //       );
-  //       if (response) {
-  //         setMessage('');
-  //         setMessages(prev => [response?.messages, ...prev]);
-  //       }
-  //     } catch (error: any) {
-  //       const errorMessage = error
-  //         .toString()
-  //         .replace('[Error: ', '')
-  //         .replace(']', '');
-  //       ErrorToast(errorMessage);
-  //     }
-
-  //     // for socket io
-  //     const messageData = {
-  //       sender: user?._id,
-  //       receiver: otherUser?._id,
-  //       message: message,
-  //       conversationId: route.params?.conversation_id,
-  //     };
-  //     socket.emit('textMessage', messageData);
-  //   },
-  //   [message, otherUser?._id, route.params?.conversation_id, socket, user?._id],
-  // );
-  // // phone handler
-  // const phoneHandler = useCallback(() => {
-  //   const phoneNumber = '9833035830';
-  //   let phoneNumberWithPrefix = '';
-
-  //   if (Platform.OS === 'android') {
-  //     phoneNumberWithPrefix = `tel:${phoneNumber}`;
-  //   } else if (Platform.OS === 'ios') {
-  //     phoneNumberWithPrefix = `telprompt:${phoneNumber}`;
-  //   }
-
-  //   Linking.openURL(phoneNumberWithPrefix).catch(err =>
-  //     console.error('An error occurred: ', err),
-  //   );
-  // }, []);
-
-  // const messageListener = useCallback(
-  //   ({sender, message}: any) => {
-  //     setArrivalMessage({
-  //       sender: sender,
-  //       msg: message,
-  //     });
-
-  //     // Append the received message to the messages state
-  //     setMessages((prevMessages: any) => {
-  //       const newMessage = {
-  //         __v: 0,
-  //         _id: Math.random().toString(),
-  //         conversationId: route.params?.conversation_id,
-  //         createdAt: new Date().toISOString(),
-  //         msg: message,
-  //         senderId: sender,
-  //         updatedAt: new Date().toISOString(),
-  //       };
-
-  //       return [newMessage, ...prevMessages];
-  //     });
-  //   },
-  //   [route.params?.conversation_id],
-  // );
-
-  // useEffect(() => {
-  //   socket?.on('textMessageFromBack', messageListener);
-
-  //   return () => {
-  //     socket?.off('textMessageFromBack', messageListener);
-  //   };
-  // }, [arrivalMessage, route.params?.conversation_id, socket, messageListener]);
-
-  // //back button handler
-  // const backbottonHandler = useCallback(() => {
-  //   setMessages([]);
-  //   navigation.navigate('Message');
-  // }, [navigation]);
-
-  // if (isLoading || (Array.isArray(messages) && messages.length === 0)) {
-  //   return <MessageLoader />;
-  // }
-
-  const messages = [
-    {
-      _id: "1",
-      senderId: "1",
-      msg: "Hello",
-      createdAt: new Date(),
+        const response = await MessageStore.getState().createMessage(data);
+        if (response) {
+          setMessage("");
+          setMessages((prev) => [response?.messages, ...prev]);
+        }
+      } catch (error) {
+        const errorMessage = error
+          .toString()
+          .replace("[Error: ", "")
+          .replace("]", "");
+        ErrorToast(errorMessage);
+      }
     },
-    {
-      _id: "2",
-      senderId: "2",
-      msg: "Hi",
-      createdAt: new Date(),
-    },
-  ];
-
-  const backbottonHandler = () => {
-    navigation.navigate("Message");
-  };
-  const phoneHandler = () => {
+    [message, otherUser?._id, route.params?.conversation_id, user?._id]
+  );
+  // phone handler
+  const phoneHandler = useCallback(() => {
     const phoneNumber = "9833035830";
     let phoneNumberWithPrefix = "";
 
@@ -231,11 +144,24 @@ const ActualMessage = ({ navigation, route }) => {
     Linking.openURL(phoneNumberWithPrefix).catch((err) =>
       console.error("An error occurred: ", err)
     );
-  };
+  }, []);
 
-  const sendMessageHandler = () => {
-    //send message
-    }
+  //back button handler
+  const backbottonHandler = useCallback(() => {
+    setMessages([]);
+    navigation.navigate("Message");
+  }, [navigation]);
+
+  if (isLoading || (Array.isArray(messages) && messages.length === 0)) {
+    return (
+      <View
+        className="w-[100%] flex items-center justify-center"
+        style={{ marginTop: responsiveHeight(10) }}
+      >
+        <ActivityIndicator size="large" color="black" />
+      </View>
+    );
+  }
 
   return (
     <React.Fragment>
@@ -246,19 +172,14 @@ const ActualMessage = ({ navigation, route }) => {
             <IonIcons name="chevron-back-sharp" size={30} color="gray" />
           </TouchableOpacity>
           <View style={styles.profile}>
-            {/* {otherUser?.profilePic?.url && (
+            {otherUser?.profilePic?.url && (
                 <Image
                   source={{uri: otherUser?.profilePic?.url}}
                   style={styles.profileImage}
                 />
-              )} */}
-            <Image
-              source={{ uri: "https://i.pravatar.cc/100" }}
-              style={styles.profileImage}
-            />
+              )}
             <Text style={styles.profileName} className="text-black">
-              {/* {otherUser?.username} */}
-              Oneal
+              {otherUser?.username}
             </Text>
           </View>
           <TouchableOpacity onPress={phoneHandler}>
@@ -323,7 +244,7 @@ const Messages = React.memo(({ data, otheruser }) => {
             <View style={styles.messageContent} className="">
               <View
                 style={[styles.messageTextContainer, { maxWidth }]}
-                className={`bg-color2 flex flex-col gap-y-1 ${
+                className={`bg-black flex flex-col gap-y-1 ${
                   data?.msg.length > 38 && "w-[80%]"
                 }`}
               >
@@ -360,15 +281,15 @@ const Messages = React.memo(({ data, otheruser }) => {
             >
               <Text style={styles.messageTextMe}>{data?.msg}</Text>
               <Text
-                className="text-black "
+                className="text-black"
                 style={{
                   fontFamily: "Montserrat-Regular",
                   fontSize: responsiveFontSize(1.25),
                 }}
               >
-                {/* {formatDistanceToNow(new Date(data?.createdAt), {
+                {formatDistanceToNow(new Date(data?.createdAt), {
                     addSuffix: true,
-                  })} */}
+                  })}
               </Text>
             </View>
           </View>

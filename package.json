@@ -16,6 +16,7 @@
     "@react-navigation/native-stack": "^6.10.1",
     "@shopify/flash-list": "^1.7.0",
     "axios": "^1.7.2",
+    "date-fns": "^3.6.0",
     "expo": "~51.0.21",
     "expo-font": "^12.0.9",
     "expo-image-picker": "~15.0.7",
@@ -23,6 +24,7 @@
     "expo-status-bar": "~1.12.1",
     "formik": "^2.4.6",
     "gesture-handler": "^0.0.1",
+    "lottie-react-native": "^6.7.2",
     "nativewind": "^2.0.11",
     "prop-types": "^15.8.1",
     "react": "18.2.0",
@@ -40,11 +42,11 @@
     "react-native-svg": "^15.2.0",
     "react-native-toast-message": "^2.2.0",
     "react-native-vector-icons": "^10.1.0",
+    "react-native-webview": "13.8.6",
     "reanimated": "^0.0.1-alpha",
     "typescript": "~5.3.3",
     "yup": "^1.4.0",
-    "zustand": "^4.5.4",
-    "react-native-webview": "13.8.6"
+    "zustand": "^4.5.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
