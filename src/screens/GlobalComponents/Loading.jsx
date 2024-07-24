@@ -12,14 +12,7 @@ const Loading = () => {
 
   return (
     <View className="flex items-center justify-center h-[100%] bg-white">
-      <Text
-        className="text-3xl text-black font-bold"
-        style={{
-          fontFamily: "Montserrat-Bold",
-        }}
-      >
-        Care Connect
-      </Text>
+      <Image source={require("../../../assets/logo.png")} style={{ width: 200, height: 200 }} />
       <View className="mt-[-30px]">
         <LottieView
           source={require("../../../assets/animation/P2P9GT0Xpl.json")}

@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-import React from "react";
+import React, { useCallback } from "react";
 import {
   responsiveHeight,
   responsiveWidth,
@@ -13,17 +13,25 @@ import {
 import IconIcons from "react-native-vector-icons/Ionicons";
 import Feather from "react-native-vector-icons/Feather";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
-import { useNavigation } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useGlobalStore } from "../../global/store";
 import { useRoute } from "@react-navigation/native";
 import { MessageStore } from "./helper/MessageStore";
+import { UserStore } from "../CareGiver/helper/UserStore";
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
 const Post = () => {
   const navigation = useNavigation();
-  const user = useGlobalStore((state) => state.user);
+  const { user, checkAuth } = useGlobalStore();
   const route = useRoute();
   const singleUserData = route?.params?.item;
+  const focused = useIsFocused();
+  console.log(singleUserData, "this is single user data");
+  console.log(user?.fav, "this is user fav");
+
+  //save
+  const [isPostSaved, setIsPostSaved] = React.useState(false);
 
   const [isRequesting, setIsRequesting] = React.useState(false);
 
@@ -39,26 +47,23 @@ const Post = () => {
   };
 
   //send message handler
-  const sendMessageHandler = 
-    async (conversationId) => {
-      const newValues = {
-        conversationId: conversationId,
-        msg: `I want to ask something about your service, Will you please reply!.`,
-        recipientId: singleUserData?._id,
-      };
-      const response = await MessageStore.getState().createMessage(
-        newValues,
-      );
-      if (response) {
-        navigation.navigate('Actual_Message', {
-          conversation_id: conversationId,
-        });
-      }
+  const sendMessageHandler = async (conversationId) => {
+    const newValues = {
+      conversationId: conversationId,
+      msg: `I want to ask something about your service, Will you please reply!.`,
+      recipientId: singleUserData?._id,
     };
+    const response = await MessageStore.getState().createMessage(newValues);
+    if (response) {
+      navigation.navigate("Actual_Message", {
+        conversation_id: conversationId,
+      });
+    }
+  };
 
   //send request handler
   const sendRequestHandler = async () => {
-    setIsRequesting(true)
+    setIsRequesting(true);
     const newValues = {
       senderId: user?._id,
       receiverId: singleUserData?._id,
@@ -69,8 +74,43 @@ const Post = () => {
     if (response) {
       sendMessageHandler(response?.conversation._id.toString());
     }
-    setIsRequesting(false)
+    setIsRequesting(false);
   };
+
+  React.useEffect(() => {
+    if (user && user?.fav.includes(singleUserData?._id) && focused) {
+      console.log(singleUserData?._id, "this is id");
+      setIsPostSaved(true);
+    }
+    if (user && !user?.fav.includes(singleUserData?._id) && focused) {
+      setIsPostSaved(false);
+    }
+  }, [focused]);
+
+  //handle save
+  const saveHandler = useCallback(async () => {
+    try {
+      const res = await UserStore.getState().saveUser(singleUserData?._id);
+      if (res) {
+        setIsPostSaved(true);
+        checkAuth();
+        await UserStore.getState().getSaveUser();
+      }
+    } catch (error) {
+      ErrorToast(error.toString().replace("[Error: ", "").replace("]", ""));
+    }
+  }, []);
+
+  const unSaveHandler = useCallback(async () => {
+    try {
+      const res = await UserStore.getState().unSaveUser(singleUserData?._id);
+      setIsPostSaved(false);
+      await checkAuth();
+      await UserStore.getState().getSaveUser();
+    } catch (error) {
+      ErrorToast(error.toString().replace("[Error: ", "").replace("]", ""));
+    }
+  }, []);
 
   return (
     <SafeAreaView style={{ marginTop: responsiveHeight(5) }}>
@@ -127,6 +167,15 @@ const Post = () => {
                 {singleUserData?.username}
               </Text>
               <MaterialIcon name="verified" size={20} color={"green"} />
+              {isPostSaved ? (
+                <TouchableOpacity onPress={unSaveHandler}>
+                  <MaterialIcons name="favorite" size={25} color="red" />
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity onPress={saveHandler}>
+                  <MaterialIcons name="favorite" size={25} color="gray" />
+                </TouchableOpacity>
+              )}
             </View>
 
             <View className="flex flex-row gap-x-1">

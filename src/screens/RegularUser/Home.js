@@ -33,6 +33,10 @@ const Home = () => {
     await useMessageStore.getState().unreadMessageCount();
   }, []);
 
+  const readFavCount = useCallback(async () => {
+    await UserStore.getState().getSaveUser();
+  }, []);
+
   React.useEffect(() => {
     // get all care giver
     const getAllCareGiver = async () => {
@@ -52,9 +56,10 @@ const Home = () => {
     
     if(focused){
       readUnreadMessage();
+      readFavCount();
       getAllCareGiver();
     }
-  }, []);
+  }, [focused]);
 
   
 

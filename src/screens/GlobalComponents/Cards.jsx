@@ -7,8 +7,21 @@ import {
 } from "react-native-responsive-dimensions";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
+import { useGlobalStore } from "../../global/store";
+import { useIsFocused } from "@react-navigation/native";
 
 const Cards = ({ data }) => {
+  const user = useGlobalStore((state) => state.user);
+  const focused = useIsFocused();
+
+  const [isPostSaved, setIsPostSaved] = React.useState(false);
+
+  React.useEffect(() => {
+    if (user && user?.fav.includes(data?._id) && focused) {
+      setIsPostSaved(true);
+    }
+  }, [focused]);
+
   return (
     <View className="flex flex-col items-center bg-gray-100 p-4 my-2 rounded-md">
       {/* upside  */}
@@ -67,7 +80,15 @@ const Cards = ({ data }) => {
           </View>
         </View>
         <View>
-          <MaterialIcons name="favorite" size={25} color={"gray"} />
+          {user?.role === "user" && (
+            <>
+              {isPostSaved ? (
+                <MaterialIcons name="favorite" size={25} color={"red"} />
+              ) : (
+                <MaterialIcons name="favorite" size={25} color={"gray"} />
+              )}
+            </>
+          )}
         </View>
       </View>
       {/* downside */}
@@ -79,10 +100,17 @@ const Cards = ({ data }) => {
             color: "black",
           }}
         >
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Earum
-          praesentium nulla commodi magni, eligendi ducimus sequi minima atque
-          dolorem, laborum quo sapiente ab? Fuga reiciendis perspiciatis minima,
-          vel quo aspernatur.
+          {user?.about_me || (
+            <Text
+              style={{
+                fontFamily: "Montserrat-Regular",
+                fontSize: responsiveFontSize(1.5),
+                color: "red",
+              }}
+            >
+              No about me added
+            </Text>
+          )}
         </Text>
       </View>
     </View>

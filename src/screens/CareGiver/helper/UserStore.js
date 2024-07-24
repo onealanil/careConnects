@@ -2,6 +2,8 @@ import { create } from "zustand";
 import { axios_auth } from "../../../global/config";
 
 export const UserStore = create((set) => ({
+  favCount: 0, // initial state
+  setCount: count => set({ favCount: count }),
   editProfile: async (id, data) => {
     try {
       const response = await axios_auth.put(`/user/edit-profile/${id}`, data);
@@ -89,6 +91,7 @@ export const UserStore = create((set) => ({
       if (response.status === 200) {
         return response.data;
       }
+
       return [];
     } catch (error) {
       if (error.response) {
@@ -129,9 +132,9 @@ export const UserStore = create((set) => ({
     }
   },
 
-  saveJob: async (id) => {
+  saveUser: async (id) => {
     try {
-      const response = await axios_auth.put(`/user/save-job/${id}`);
+      const response = await axios_auth.put(`/user/save-user/${id}`);
       if (response.status === 200) {
         return response.data;
       }
@@ -144,9 +147,9 @@ export const UserStore = create((set) => ({
       }
     }
   },
-  unsaveJob: async (id) => {
+  unSaveUser: async (id) => {
     try {
-      const response = await axios_auth.put(`/user/unsave-job/${id}`);
+      const response = await axios_auth.put(`/user/unsave-user/${id}`);
       if (response.status === 200) {
         return response.data;
       }
@@ -160,10 +163,11 @@ export const UserStore = create((set) => ({
     }
   },
 
-  getSavejob: async () => {
+  getSaveUser: async () => {
     try {
-      const response = await axios_auth.get(`/user/saved-jobs`);
+      const response = await axios_auth.get(`/user/saved-user`);
       if (response.status === 200) {
+        set({favCount: response.data.count})
         return response.data;
       }
       return [];

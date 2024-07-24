@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
@@ -17,11 +17,25 @@ import PhoneVerification from "../screens/CareGiver/phoneVerify/PhoneVerificatio
 import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
 import Payment from "../screens/RegularUser/Payment";
 import { useMessageStore } from "../global/MessageCount";
+import { useIsFocused } from "@react-navigation/native";
+import { UserStore } from "../screens/CareGiver/helper/UserStore";
+import { ErrorToast } from "../components/ErrorToast";
 
 const Tab = createBottomTabNavigator();
 
 const ButtonNavigatorUser = () => {
+  const isFocused = useIsFocused();
   const messageCount = useMessageStore((state) => state.messageCount);
+  const favCount = UserStore((state) => state.favCount);
+  const getSaveUser = UserStore((state) => state.getSaveUser);
+
+  React.useEffect(() => {
+    if (isFocused) {
+      getSaveUser().catch((error) => {
+        ErrorToast("Failed to fetch saved users:", error);
+      });
+    }
+  }, [isFocused, getSaveUser]);
 
   return (
     <Tab.Navigator
@@ -70,7 +84,7 @@ const ButtonNavigatorUser = () => {
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="favorite" size={25} color={color} />
           ),
-          tabBarBadge: 5,
+          tabBarBadge: favCount > 0 ? favCount : undefined,
         }}
       />
       <Tab.Screen
