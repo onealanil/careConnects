@@ -32,7 +32,7 @@ const TopNav = ({props, user}) => {
               fontFamily: 'Montserrat-Bold',
               fontSize: responsiveFontSize(2.5),
             }}>
-            Anil
+            {user?.username}
           </Text>
         </View>
         <View>

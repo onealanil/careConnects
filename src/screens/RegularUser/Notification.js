@@ -16,11 +16,13 @@ import {
   responsiveWidth,
 } from "react-native-responsive-dimensions";
 import IconIcons from "react-native-vector-icons/Ionicons";
-import { useIsFocused } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { ErrorToast } from "../../components/ErrorToast";
-// import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { FlashList } from "@shopify/flash-list";
 import { useGlobalStore } from "../../global/store";
+import { ReviewStore } from "./helper/ReviewStore";
+import { useNotificationCount } from "../../global/NotificationCount";
 
 const NotificationRenderer = ({ item }) => {
   return (
@@ -31,7 +33,7 @@ const NotificationRenderer = ({ item }) => {
       >
         {/* photos */}
         <View style={{ width: "20%" }}>
-          {/* {item?.senderId?.profilePic?.url && (
+          {item?.senderId?.profilePic?.url && (
             <Image
               source={{ uri: item?.senderId?.profilePic?.url }}
               style={{
@@ -40,15 +42,7 @@ const NotificationRenderer = ({ item }) => {
                 borderRadius: 100,
               }}
             />
-          )} */}
-          <Image
-            source={{ uri: item?.profilePic }}
-            style={{
-              height: responsiveHeight(8),
-              width: responsiveHeight(8),
-              borderRadius: 100,
-            }}
-          />
+          )}
         </View>
         {/* Message */}
         <View style={{ width: "70%" }}>
@@ -60,37 +54,23 @@ const NotificationRenderer = ({ item }) => {
               fontSize: responsiveHeight(1.5),
             }}
           >
-            {/* {item?.senderId?.username || ""} : */}
-            {item?.username || ""} :
-            {item?.type === "review" && (
-              <Text className="text-color2"> reviewed you</Text>
-            )}
+            {item?.senderId?.username || ""} : {item?.notification}
           </Text>
+
           <Text
-            numberOfLines={3}
-            className="text-black"
+            numberOfLines={1}
+            className="text-color2"
             style={{
               fontFamily: "Montserrat-Regular",
-              fontSize: responsiveHeight(1.5),
+              fontSize: responsiveHeight(1.25),
             }}
           >
-            {item?.notification || ""}
+            Click here to view
           </Text>
-          {item?.type === "review" && (
-            <Text
-              numberOfLines={1}
-              className="text-color2"
-              style={{
-                fontFamily: "Montserrat-Regular",
-                fontSize: responsiveHeight(1.25),
-              }}
-            >
-              Click here to view
-            </Text>
-          )}
+
           <View className="">
             <Text className="text-black">
-              {/* {formatDistanceToNow(item?.createdAt)} */}
+              {formatDistanceToNow(item?.createdAt)}
             </Text>
           </View>
         </View>
@@ -100,10 +80,10 @@ const NotificationRenderer = ({ item }) => {
   );
 };
 
-const Notification = ({ navigation }) => {
+const Notification = () => {
   const user = useGlobalStore((state) => state.user);
+  const navigation = useNavigation();
 
-  const [arrivalMessage, setArrivalMessage] = React.useState(null);
   const [isLoadingFetchNotification, setIsLoadingFetchNotification] =
     React.useState(true);
 
@@ -112,110 +92,50 @@ const Notification = ({ navigation }) => {
 
   const isFocused = useIsFocused();
 
-  // const readallNotifications = useCallback(async () => {
-  //   try {
-  //     await (NotificationStore.getState() as any).readAllNotifications();
-  //     useNotificationCount.setState(state => ({
-  //       notificationCount: 0,
-  //     }));
-  //   } catch (error) {
-  //     const errorMessage = error
-  //       .toString()
-  //       .replace('[Error: ', '')
-  //       .replace(']', '');
-  //     ErrorToast(errorMessage);
-  //   }
-  // }, []);
+  const readallNotifications = useCallback(async () => {
+    try {
+      await ReviewStore.getState().readAllNotifications();
+      useNotificationCount.setState(state => ({
+        notificationCount: 0,
+      }));
+    } catch (error) {
+      const errorMessage = error
+        .toString()
+        .replace("[Error: ", "")
+        .replace("]", "");
+      ErrorToast(errorMessage);
+    }
+  }, []);
 
-  // const fetchNotifications = useCallback(
-  //   async (id: string) => {
-  //     try {
-  //       const response = await (
-  //         NotificationStore.getState() as any
-  //       ).getNotificationById(id);
-  //       if (response) {
-  //         setNotification(response);
-  //       }
-  //     } catch (error: any) {
-  //       const errorMessage = error
-  //         .toString()
-  //         .replace('[Error: ', '')
-  //         .replace(']', '');
-  //       ErrorToast(errorMessage);
-  //     }
-  //     setIsLoadingFetchNotification(false);
-
-  //   },
-  //   [setNotification],
-  // );
-
-  // const memoizedUserId = useMemo(() => user?._id, [user?._id]);
-  // const memoizedIsFocused = useMemo(() => isFocused, [isFocused]);
-
-  // useEffect(() => {
-  //   setIsLoadingFetchNotification(true);
-  //   if (memoizedUserId && memoizedIsFocused) {
-  //     fetchNotifications(memoizedUserId);
-  //     readallNotifications();
-  //   }
-  // }, [memoizedUserId, memoizedIsFocused, fetchNotifications]);
-
-  // const messageListener = useCallback(
-  //   async (newNotification: any) => {
-  //     setArrivalMessage({
-  //       senderId: {
-  //         profilePic: { url: newNotification?.profilePic },
-  //         username: newNotification?.senderUsername,
-  //       },
-  //       notification: newNotification.notification,
-  //       type: newNotification.type,
-  //       createdAt: newNotification.createdAt,
-  //     });
-  //     setNotification((prevNotification: any) => [
-  //       {
-  //         _id: Math.random().toString(),
-  //         senderId: {
-  //           profilePic: { url: newNotification?.profilePic },
-  //           username: newNotification?.senderUsername,
-  //         },
-  //         recipientId: newNotification?.recipientId,
-  //         notification: newNotification?.notification,
-  //         type: newNotification?.type,
-  //         createdAt: new Date().toISOString(),
-  //       },
-  //       ...prevNotification,
-  //     ]);
-  //     try {
-  //       await (useNotificationCount.getState() as any).unreadNotification();
-  //     } catch (error: any) {
-  //       const errorMessage = error
-  //         .toString()
-  //         .replace('[Error: ', '')
-  //         .replace(']', '');
-  //       ErrorToast(errorMessage);
-  //     }
-  //   },
-  //   [setArrivalMessage, setNotification],
-  // );
-
-  const data = [
-    {
-      _id: "1",
-      profilePic: user?.profilePic?.url,
-      username: user?.username,
-      notification: "You have a new message",
-      type: "review",
-      createdAt: new Date().toISOString(),
+  const fetchNotifications = useCallback(
+    async (id) => {
+      try {
+        const response = await ReviewStore.getState().getNotificationById(id);
+        if (response) {
+          setNotification(response);
+        }
+      } catch (error) {
+        const errorMessage = error
+          .toString()
+          .replace("[Error: ", "")
+          .replace("]", "");
+        ErrorToast(errorMessage);
+      }
+      setIsLoadingFetchNotification(false);
     },
-    {
-      _id: "2",
-      profilePic: user?.profilePic?.url,
-      username: user?.username,
-      notification: "You have a new message",
-      type: "review",
-      createdAt: new Date().toISOString(),
-    },
-  ];
+    [setNotification]
+  );
+
+  const memoizedUserId = useMemo(() => user?._id, [user?._id]);
+  const memoizedIsFocused = useMemo(() => isFocused, [isFocused]);
+
+  useEffect(() => {
+    setIsLoadingFetchNotification(true);
+    if (memoizedUserId && memoizedIsFocused) {
+      fetchNotifications(memoizedUserId);
+      readallNotifications();
+    }
+  }, [memoizedUserId, memoizedIsFocused, fetchNotifications]);
 
   return (
     <View className="bg-white" style={{ marginTop: responsiveHeight(5) }}>
@@ -256,46 +176,46 @@ const Notification = ({ navigation }) => {
             width: responsiveWidth(90),
           }}
         >
-          {/* {isLoadingFetchNotification && (
+          {isLoadingFetchNotification && (
             <ActivityIndicator size="large" color="#00ff00" />
-          )} */}
-          {/* {!isLoadingFetchNotification && ( */}
-          <FlashList
-            horizontal={false}
-            data={data}
-            estimatedItemSize={100}
-            keyExtractor={(item, index) => index.toString()}
-            contentContainerStyle={{
-              padding: responsiveHeight(1),
-              paddingBottom: responsiveHeight(75),
-            }}
-            renderItem={({ item }) => (
-              <TouchableWithoutFeedback
-                onPress={() =>
-                  navigation.navigate("Other_Profile", {
-                    id: item?.senderId?._id,
-                  })
-                }
-              >
-                <NotificationRenderer item={item} />
-              </TouchableWithoutFeedback>
-            )}
-            ListEmptyComponent={() => (
-              // Render this component when there's no data
-              <View style={{ paddingBottom: responsiveHeight(25) }}>
-                <Text
-                  className="text-red-500"
-                  style={{
-                    fontFamily: "Montserrat-Bold",
-                    fontSize: responsiveFontSize(1.75),
-                  }}
+          )}
+          {!isLoadingFetchNotification && (
+            <FlashList
+              horizontal={false}
+              data={notification}
+              estimatedItemSize={100}
+              keyExtractor={(item, index) => index.toString()}
+              contentContainerStyle={{
+                padding: responsiveHeight(1),
+                paddingBottom: responsiveHeight(75),
+              }}
+              renderItem={({ item }) => (
+                <TouchableWithoutFeedback
+                  onPress={() =>
+                    navigation.navigate("Other_Profile", {
+                      id: item?.senderId?._id,
+                    })
+                  }
                 >
-                  No Notification found
-                </Text>
-              </View>
-            )}
-          />
-          {/* )} */}
+                  <NotificationRenderer item={item} />
+                </TouchableWithoutFeedback>
+              )}
+              ListEmptyComponent={() => (
+                // Render this component when there's no data
+                <View style={{ paddingBottom: responsiveHeight(25) }}>
+                  <Text
+                    className="text-red-500"
+                    style={{
+                      fontFamily: "Montserrat-Bold",
+                      fontSize: responsiveFontSize(1.75),
+                    }}
+                  >
+                    No Notification found
+                  </Text>
+                </View>
+              )}
+            />
+          )}
         </View>
       </View>
     </View>

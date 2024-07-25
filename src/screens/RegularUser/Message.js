@@ -48,7 +48,7 @@ const Message = ({ navigation }) => {
     if (isFocused) {
       getConversations();
     }
-  }, [getConversations]);
+  }, [getConversations, isFocused]);
 
   const readAllMessages = useCallback(async (conversation_id) => {
     try {

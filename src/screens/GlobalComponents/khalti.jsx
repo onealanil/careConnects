@@ -2,11 +2,58 @@ import React from "react";
 import { SafeAreaView, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import KhaltiSdk from "../../components/khalti/KhaltiSdk";
+import { BACKEND_URL } from "../../global/config";
+import axios from "axios";
+import { SuccessToast } from "../../components/SuccessToast";
+import { ErrorToast } from "../../components/ErrorToast";
+import { useGlobalStore } from "../../global/store";
+import { KhaltiStore } from "./helper/KhaltiStore";
 
-const Khalti = ({ isVisible, setIsVisible }) => {
+const Khalti = ({
+  isVisible,
+  setIsVisible,
+  getAllCareGiver,
+  khaltiNumber,
+  datas,
+}) => {
+  const { user } = useGlobalStore();
   const navigation = useNavigation();
 
-  const _onPaymentComplete = (data) => {
+  const updateJobStatus = async () => {
+    try {
+      const response = await KhaltiStore.getState().clearWorkingStatus();
+      getAllCareGiver();
+      SuccessToast("Working status updated successfully");
+    } catch (error) {
+      const errorMessage = error
+        .toString()
+        .replace("[Error: ", "")
+        .replace("]", "");
+      ErrorToast(errorMessage);
+    }
+  };
+
+  //assigned by --> mero id
+
+  const createPayment = async (paymentBy, paymentTo, amount, khaltiNumber) => {
+    try {
+      await KhaltiStore.getState().createPayment(
+        paymentBy,
+        paymentTo,
+        amount,
+        khaltiNumber
+      );
+      SuccessToast("Payment created successfully");
+    } catch (error) {
+      const errorMessage = error
+        .toString()
+        .replace("[Error: ", "")
+        .replace("]", "");
+      ErrorToast(errorMessage);
+    }
+  };
+
+  const _onPaymentComplete = async (data) => {
     setIsVisible(false);
     const str = data.data;
     console.log(str, "this is str");
@@ -14,14 +61,23 @@ const Khalti = ({ isVisible, setIsVisible }) => {
     if (data.event === "CLOSED") {
       // handle closed action
     } else if (data.event === "SUCCESS") {
-      // console.log({ data: resp.data })
       const token = str.token;
       const amount = str.amount;
-      console.log({ token, amount }, "this is token and amount");
-    } else if (data.event === "ERROR") {
-      // console.log({ error: resp.data })
+      const response = await axios.post(`${BACKEND_URL}/charge`, {
+        token: token,
+        amount: amount,
+      });
+      if (response.data.status === "success") {
+        createPayment(user?._id, datas?._id, 20, khaltiNumber);
+        console.log(response.data);
+        updateJobStatus();
+        setIsVisible(false);
+        SuccessToast("Payment Successful");
+      } else if (data.event === "ERROR") {
+        ErrorToast("Payment Failed");
+      }
+      return;
     }
-    return;
   };
 
   return (

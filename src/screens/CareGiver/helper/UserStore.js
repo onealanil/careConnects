@@ -52,11 +52,12 @@ export const UserStore = create((set) => ({
     }
   },
 
-  editWorkingStatus: async (status, id) => {
+  editWorkingStatus: async (status, id, khaltiNumber) => {
     try {
       const response = await axios_auth.put(`/work/working-status`, {
         workingStatus: status,
         assignedTo: id,
+        khaltiNumber: khaltiNumber
       });
       if (response.data.status === "pending") {
         return response.data;
@@ -73,6 +74,21 @@ export const UserStore = create((set) => ({
   getAllCareGiver: async () => {
     try {
       const response = await axios_auth.get(`/user/care-giver`);
+      if (response.status === 200) {
+        return response.data;
+      }
+      return [];
+    } catch (error) {
+      if (error.response) {
+        throw new Error(error.response.data.message);
+      } else {
+        throw new Error(error.message);
+      }
+    }
+  },
+  searchCareGiver: async (search = "") => {
+    try {
+      const response = await axios_auth.get(`/user/care-giver?search=${encodeURIComponent(search)}`);
       if (response.status === 200) {
         return response.data;
       }
@@ -168,6 +184,21 @@ export const UserStore = create((set) => ({
       const response = await axios_auth.get(`/user/saved-user`);
       if (response.status === 200) {
         set({favCount: response.data.count})
+        return response.data;
+      }
+      return [];
+    } catch (error) {
+      if (error.response) {
+        throw new Error(error.response.data.message);
+      } else {
+        throw new Error(error.message);
+      }
+    }
+  },
+  getAllWorkingUser: async () => {
+    try {
+      const response = await axios_auth.get(`/work/get-user`);
+      if (response.status === 200) {
         return response.data;
       }
       return [];

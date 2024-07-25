@@ -1,9 +1,13 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const API_URL = 'http://192.168.1.10:8000/api/v1';
+export const API_URL = 'https://care-connect-backend-mu.vercel.app/api/v1';
+// export const API_URL = 'http://192.168.1.10:8000/api/v1';
 
-export const BACKEND_URL = 'http://192.168.1.10:8000';
+
+export const BACKEND_URL = 'https://care-connect-backend-mu.vercel.app';
+// export const BACKEND_URL = 'http://192.168.1.10:8000';
+
 
 export const axios_auth = axios.create({
   baseURL: API_URL,

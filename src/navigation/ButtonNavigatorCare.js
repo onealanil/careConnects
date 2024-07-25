@@ -8,20 +8,22 @@ import MyProfile from "../screens/CareGiver/MyProfile";
 import EditProfile from "../screens/CareGiver/EditProfile";
 import DocumentVerify from "../screens/GlobalComponents/DocumentVerify";
 import PhoneVerification from "../screens/CareGiver/phoneVerify/PhoneVerification";
-import Review from "../screens/CareGiver/Review";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import ActualMessage from "../screens/GlobalComponents/ActualMessage";
 import Message from "../screens/RegularUser/Message";
+import Post from "../screens/RegularUser/Post";
 import Notification from "../screens/RegularUser/Notification";
 import { useMessageStore } from "../global/MessageCount";
+import { useNotificationCount } from "../global/NotificationCount";
+import Reviews from "../screens/CareGiver/Review";
 
 const Tab = createBottomTabNavigator();
 
 const ButtonNavigatorCare = () => {
   const messageCount = useMessageStore(state => state.messageCount);
-  // const notificationCount = useNotificationCount(
-  //   state => state.notificationCount,
-  // );
+  const notificationCount = useNotificationCount(
+    state => state.notificationCount,
+  );
 
   return (
     <Tab.Navigator
@@ -34,7 +36,7 @@ const ButtonNavigatorCare = () => {
       }}
     >
       <Tab.Screen
-        name="Home_bottom_care"
+        name="Home_bottom"
         component={Home}
         options={{
           tabBarIcon: ({ color }) => (
@@ -61,12 +63,12 @@ const ButtonNavigatorCare = () => {
           tabBarIcon: ({ color }) => (
             <Ionicons name="notifications-outline" size={25} color={color} />
           ),
-          tabBarBadge: 6,
+          tabBarBadge: notificationCount > 0 ? notificationCount : undefined,
         }}
       />
        <Tab.Screen
         name="reviews"
-        component={Review}
+        component={Reviews}
         options={{
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="reviews" size={25} color={color} />
@@ -93,6 +95,14 @@ const ButtonNavigatorCare = () => {
       <Tab.Screen
         name="EditProfile"
         component={EditProfile}
+        options={() => ({
+          tabBarButton: () => null,
+          tabBarVisible: false,
+        })}
+      />
+         <Tab.Screen
+        name="Post"
+        component={Post}
         options={() => ({
           tabBarButton: () => null,
           tabBarVisible: false,

@@ -27,6 +27,7 @@ const ModalStatus = ({
   setSelectedUsers,
   setSelectedStatus,
   selectedStatus,
+  setKhaltiNumber,
 }) => {
   const [searchText, setSearchText] = React.useState("");
   const [searchedUser, setSearchedUser] = React.useState(null);
@@ -178,7 +179,7 @@ const ModalStatus = ({
                   </View>
                 </TouchableOpacity>
               </View>
-            ) : selectedStatus !== "not_work" &&
+            ) : selectedStatus === "assigned" &&
               selectedUsers &&
               Array.isArray(selectedUsers) &&
               selectedUsers.length > 0 ? (
@@ -199,6 +200,35 @@ const ModalStatus = ({
                     </Text>
                   </View>
                 </TouchableOpacity>
+              </View>
+            ) : selectedStatus === "completed" &&
+              selectedUsers &&
+              Array.isArray(selectedUsers) &&
+              selectedUsers.length > 0 ? (
+              <View>
+                <View className="w-[100%] justify-start items-center mb-4">
+                  <TextInput
+                    placeholder="Enter Khalti Number..."
+                    className="my-4"
+                    onChangeText={(e) => setKhaltiNumber(e)}
+                  />
+                  <TouchableOpacity onPress={() => handleOkFunction()}>
+                    <View
+                      className="bg-black flex items-center justify-center py-2 px-5 rounded-md"
+                      style={{ width: "25%" }}
+                    >
+                      <Text
+                        className="text-white"
+                        style={{
+                          fontFamily: "Montserrat-SemiBold",
+                          fontSize: responsiveFontSize(2),
+                        }}
+                      >
+                        OK
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
               </View>
             ) : null}
           </View>

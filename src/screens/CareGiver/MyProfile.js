@@ -4,6 +4,7 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import React, { useCallback, useMemo, useRef } from "react";
 import { useGlobalStore } from "../../global/store";
@@ -25,6 +26,7 @@ import { axios_auth } from "../../global/config";
 import { SuccessToast } from "../../components/SuccessToast";
 import { ErrorToast } from "../../components/ErrorToast";
 import { UserStore } from "./helper/UserStore";
+import { ReviewStore } from "../RegularUser/helper/ReviewStore";
 
 const MyProfile = () => {
   const { user, checkAuth } = useGlobalStore();
@@ -40,6 +42,7 @@ const MyProfile = () => {
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   const [selectedStatus, setSelectedStatus] = React.useState("not_work");
   const [selectedUsers, setSelectedUsers] = React.useState([]);
+  const [khaltiNumber, setKhaltiNumber] = React.useState("");
 
   const [workingStatus, setWorkingStatus] = React.useState(null);
   const [assignedBy, setAssignedBy] = React.useState(null);
@@ -49,6 +52,27 @@ const MyProfile = () => {
     useGlobalStore.setState({ user: null });
     navigation.navigate("Login");
   };
+
+  const fetchAverageRating = useCallback(async (id) => {
+    setIsFetchAverageRating(true);
+    try {
+      const response = await ReviewStore.getState().getAverageRating(id);
+      setAverageRating(response);
+    } catch (error) {
+      const errorMessage = error
+        .toString()
+        .replace("[Error: ", "")
+        .replace("]", "");
+      ErrorToast(errorMessage);
+    }
+    setIsFetchAverageRating(false);
+  }, []);
+
+  React.useEffect(() => {
+    if (focused) {
+      fetchAverageRating(user?._id);
+    }
+  }, [fetchAverageRating]);
 
   const updateProfilePic = async (imageData) => {
     setIsUploadingImage(true);
@@ -120,10 +144,12 @@ const MyProfile = () => {
   };
 
   const handleOkFunction = async () => {
+    console.log(khaltiNumber);
     try {
       const response = await UserStore.getState().editWorkingStatus(
         selectedStatus,
-        selectedUsers[0]?._id ? selectedUsers[0]?._id : null
+        selectedUsers[0]?._id ? selectedUsers[0]?._id : null,
+        khaltiNumber
       );
       fetchWorkingInfo();
       SuccessToast("Working status updated successfully");
@@ -144,7 +170,7 @@ const MyProfile = () => {
   }, []);
 
   return (
-    <React.Fragment>
+    <ScrollView>
       <View
         className="w-[100%] flex flex-col"
         style={{ padding: responsiveHeight(2), marginTop: responsiveHeight(5) }}
@@ -456,8 +482,9 @@ const MyProfile = () => {
         selectedUsers={selectedUsers}
         setSelectedUsers={setSelectedUsers}
         handleOkFunction={handleOkFunction}
+        setKhaltiNumber={setKhaltiNumber}
       />
-    </React.Fragment>
+    </ScrollView>
   );
 };
 

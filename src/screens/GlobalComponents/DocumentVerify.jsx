@@ -51,65 +51,74 @@ const DocumentVerifyRender = ({ navigation }) => {
     }
   }, [setImages]);
 
-  const verifyDocumentHandler = async () => {};
+  const verifyDocumentHandler = async () => {
+    console.log("verifyDocumentHandler called");
+    setIsSubmitting(true);
+    try {
+      if (!user?.phoneNumber) {
+        setIsSubmitting(false);
+        return ErrorToast("Please Verify your phone number first");
+      }
 
-  // const verifyDocumentHandler = async () => {
-  //   setIsSubmitting(true);
-  //   try {
-  //     if (!user?.phoneNumber) {
-  //       setIsSubmitting(false);
-  //       return ErrorToast('Please Verify your phone number first');
-  //     }
+      if (!Array.isArray(images) || images.length === 0) {
+        setIsSubmitting(false);
+        return ErrorToast("Please add images");
+      }
 
-  //     if (!Array.isArray(images) || images.length === 0) {
-  //       setIsSubmitting(false);
-  //       return ErrorToast('Please add images');
-  //     }
+      if (images.length < 2 || images.length > 2) {
+        setIsSubmitting(false);
+        return ErrorToast("Upload Front side and Back side of document");
+      }
 
-  //     if (images.length < 2 || images.length > 2) {
-  //       setIsSubmitting(false);
-  //       return ErrorToast('Upload Front side and Back side of document');
-  //     }
+      const formData = new FormData();
 
-  //     const formData = new FormData();
+      for (let i = 0; i < images.length; i++) {
+        const file = {
+          uri: images[i].uri,
+          type: images[i].mimeType,
+          name: images[i].fileName,
+        };
+        formData.append("files", file);
+        console.log(`Appending file ${i}:`, file);
+      }
 
-  //     for (let i = 0; i < images.length; i++) {
-  //       // Append each image with the key "files"
-  //       formData.append(`files`, {
-  //         uri: images[i].uri,
-  //         type: images[i].type,
-  //         name: images[i].fileName,
-  //       });
-  //     }
+      const response = await axios_auth.post(
+        "/user/upload-document",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-  //     const response = await axios_auth.post(
-  //       '/user/upload-document',
-  //       formData,
-  //       {
-  //         headers: {
-  //           'Content-Type': 'multipart/form-data',
-  //         },
-  //       },
-  //     );
-
-  //     if (response.status !== 201) {
-  //       setIsSubmitting(false);
-  //       ErrorToast('Failed to update profile picture');
-  //       // throw new Error('Failed to update profile picture');
-  //     }
-  //     checkAuth();
-  //     SuccessToast('Photos updated successfully');
-  //     setIsSubmitting(false);
-  //   } catch (error: any) {
-  //     console.log(error);
-  //     const errorMessage = error
-  //       .toString()
-  //       .replace('[Error: ', '')
-  //       .replace(']', '');
-  //     ErrorToast(errorMessage);
-  //   }
-  // };
-
+      if (response.status !== 201) {
+        setIsSubmitting(false);
+        ErrorToast("Failed to upload documents");
+      } else {
+        checkAuth();
+        SuccessToast("Documents uploaded successfully");
+      }
+    } catch (error) {
+      console.log("Error details:", error);
+      if (error.response) {
+        console.log("Error data:", error.response.data);
+        console.log("Error status:", error.response.status);
+        console.log("Error headers:", error.response.headers);
+      } else if (error.request) {
+        console.log("Error request:", error.request);
+      } else {
+        console.log("Error message:", error.message);
+      }
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "An unknown error occurred";
+      ErrorToast(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   return (
     <React.Fragment>
       <View>
@@ -399,7 +408,7 @@ const DocumentVerify = () => {
             {/* citizenship started */}
             <ScrollView className="flex flex-row gap-x-2" horizontal>
               {user?.documents.map((image) => (
-                <FastImage
+                <Image
                   key={image.url}
                   source={{ uri: image.url }}
                   style={{
@@ -425,14 +434,14 @@ const DocumentVerify = () => {
               padding: responsiveHeight(2),
             }}
           >
-            Your documents are pending. NepalKamma is currently reviewing them.
-            We will email you once your documents have been verified. Thank you
-            for your patience.
+            Your documents are pending. Care Connect is currently reviewing
+            them. We will email you once your documents have been verified.
+            Thank you for your patience.
           </Text>
           <View className="w-[100%] flex items-center justify-center rounded-md">
             <TouchableOpacity
-              className="bg-color2 w-[85%] flex items-center justify-center rounded-md"
-              onPress={() => bottomSheetModalRef.current?.close()}
+              className="bg-black w-[85%] flex items-center justify-center rounded-md"
+              onPress={() => navigation.navigate("myProfile")}
             >
               <Text
                 className="text-white tracking-widest"

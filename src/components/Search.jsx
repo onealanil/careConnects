@@ -1,15 +1,9 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import React from "react";
 import IonIcons from "react-native-vector-icons/Ionicons";
 import { responsiveFontSize } from "react-native-responsive-dimensions";
 
-const HomeSearch = ({ text, user, setSearch }) => {
+const Search = ({ text, user }) => {
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
@@ -18,27 +12,27 @@ const HomeSearch = ({ text, user, setSearch }) => {
         </View>
         {user?.role === "care_giver" ? (
           <View style={styles.input}>
-            <TextInput
-              placeholder={"Search User..."}
+            <Text
               className="text-gray-500"
               style={{
                 fontFamily: "Montserrat-SemiBold",
                 fontSize: responsiveFontSize(2),
               }}
-              onChangeText={(text)=> setSearch(text)}
-            />
+            >
+              Search User...
+            </Text>
           </View>
         ) : (
           <View style={styles.input}>
-            <TextInput
-              placeholder={"Search Care giver..."}
+            <Text
               className="text-gray-500"
               style={{
                 fontFamily: "Montserrat-SemiBold",
                 fontSize: responsiveFontSize(2),
               }}
-              onChangeText={(text)=> setSearch(text)}
-            />
+            >
+              Search Care giver...
+            </Text>
           </View>
         )}
       </View>
@@ -85,4 +79,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default React.memo(HomeSearch);
+export default React.memo(Search);

@@ -14,11 +14,12 @@ import React, { useCallback } from "react";
 import { FlashList } from "@shopify/flash-list";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import TopNav from "../GlobalComponents/TopNav";
-import HomeSearch from "../GlobalComponents/HomeSearch";
 import Cards from "../GlobalComponents/Cards";
 import { useGlobalStore } from "../../global/store";
 import { useMessageStore } from "../../global/MessageCount";
 import { UserStore } from "./helper/UserStore";
+import { useNotificationCount } from "../../global/NotificationCount";
+import Search from "../../components/Search";
 
 const Home = () => {
   const navigation = useNavigation();
@@ -31,6 +32,10 @@ const Home = () => {
 
   const readUnreadMessage = useCallback(async () => {
     await useMessageStore.getState().unreadMessageCount();
+  }, []);
+
+  const readNotification = useCallback(async () => {
+    await useNotificationCount.getState().unreadNotification();
   }, []);
 
   React.useEffect(() => {
@@ -51,13 +56,16 @@ const Home = () => {
     };
 
     if (focused) {
+      readNotification();
       readUnreadMessage();
       getAllUser();
     }
   }, []);
 
   const handleClickPost = (item) => {
-    navigation.navigate("Post");
+    navigation.navigate("Post", {
+      item,
+    });
   };
 
   return (
@@ -67,7 +75,7 @@ const Home = () => {
         alignItems: "center",
         justifyContent: "center",
         backgroundColor: "#fff",
-        paddingTop: responsiveHeight(8),
+        paddingTop: responsiveHeight(15),
       }}
     >
       <View className="w-[95%]" style={{ padding: responsiveHeight(2) }}>
@@ -104,9 +112,20 @@ const Home = () => {
         {/* search  */}
         <TouchableOpacity>
           <View style={{ marginTop: responsiveHeight(3) }}>
-            <HomeSearch text={"Home"} user={"Care Giver"} />
+            <Search text={"Home"} user={user} />
           </View>
         </TouchableOpacity>
+        <Text
+          style={{
+            fontFamily: "Montserrat-Bold",
+            fontSize: responsiveFontSize(2),
+            marginTop: responsiveHeight(3),
+            marginBottom: responsiveHeight(1),
+            color: "#000",
+          }}
+        >
+          Top Regular Users
+        </Text>
         {/* home other options  */}
         <View
           style={{

@@ -14,11 +14,12 @@ import React, { useCallback } from "react";
 import TopNav from "../GlobalComponents/TopNav";
 import { FlashList } from "@shopify/flash-list";
 import Cards from "../GlobalComponents/Cards";
-import HomeSearch from "../GlobalComponents/HomeSearch";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { useGlobalStore } from "../../global/store";
 import { UserStore } from "../CareGiver/helper/UserStore";
 import { useMessageStore } from "../../global/MessageCount";
+import Search from "../../components/Search";
+import { useNotificationCount } from "../../global/NotificationCount";
 
 const Home = () => {
   const navigation = useNavigation();
@@ -35,6 +36,9 @@ const Home = () => {
 
   const readFavCount = useCallback(async () => {
     await UserStore.getState().getSaveUser();
+  }, []);
+  const readNotification = useCallback(async () => {
+    await useNotificationCount.getState().unreadNotification();
   }, []);
 
   React.useEffect(() => {
@@ -55,6 +59,7 @@ const Home = () => {
     };
     
     if(focused){
+      readNotification();
       readUnreadMessage();
       readFavCount();
       getAllCareGiver();
@@ -111,9 +116,9 @@ const Home = () => {
           </View>
         </View>
         {/* search  */}
-        <TouchableOpacity>
+        <TouchableOpacity onPress={()=> navigation.navigate("explore")}>
           <View style={{ marginTop: responsiveHeight(3) }}>
-            <HomeSearch text={"Home"} user={"Care Giver"} />
+            <Search text={"Home"} user={user} />
           </View>
         </TouchableOpacity>
         {/* home other options  */}

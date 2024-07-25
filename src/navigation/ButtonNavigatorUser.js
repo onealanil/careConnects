@@ -20,6 +20,7 @@ import { useMessageStore } from "../global/MessageCount";
 import { useIsFocused } from "@react-navigation/native";
 import { UserStore } from "../screens/CareGiver/helper/UserStore";
 import { ErrorToast } from "../components/ErrorToast";
+import { useNotificationCount } from "../global/NotificationCount";
 
 const Tab = createBottomTabNavigator();
 
@@ -28,6 +29,9 @@ const ButtonNavigatorUser = () => {
   const messageCount = useMessageStore((state) => state.messageCount);
   const favCount = UserStore((state) => state.favCount);
   const getSaveUser = UserStore((state) => state.getSaveUser);
+  const notificationCount = useNotificationCount(
+    state => state.notificationCount,
+  );
 
   React.useEffect(() => {
     if (isFocused) {
@@ -94,7 +98,7 @@ const ButtonNavigatorUser = () => {
           tabBarIcon: ({ color }) => (
             <Ionicons name="notifications-outline" size={25} color={color} />
           ),
-          tabBarBadge: 6,
+          tabBarBadge: notificationCount > 0 ? notificationCount : undefined,
         }}
       />
       <Tab.Screen
