@@ -22,7 +22,7 @@ const OnBoarding = () => {
         source={require("../../assets/Care Connect.png")}
         style={styles.backgroundImage}
       />
-
+   {/* something chages here */}
       {/* Text and Button Container */}
       <View style={styles.contentContainer}>
         {/* Text */}
